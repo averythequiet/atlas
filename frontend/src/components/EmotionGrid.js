@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState, useMemo, useCallback } from "react";
-import axios from "axios";
 import {
   forceSimulation,
   forceX,
@@ -7,9 +6,12 @@ import {
   forceCollide,
 } from "d3-force";
 import { emotionColor } from "@/components/emotionColors";
+import emotionsData from "@/data/emotions.json";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Static build: the atlas ships with a bundled JSON of emotion names,
+// descriptions, and custom color overrides. Everything runs in the browser —
+// no backend, no LLM calls. Editing happens locally via /admin (which
+// downloads a new emotions.json for the developer to commit).
 
 // Grid config (matches backend) - 14x14 = 196 emotions (no coords on x=0 or y=0)
 const X_MIN = -7,
@@ -106,7 +108,24 @@ export default function EmotionGrid({ selected, setSelected, loadingSelected, se
   const nodesRef = useRef([]);
   const domRefs = useRef(new Map());
   const simulationRef = useRef(null);
-  const [emotionMap, setEmotionMap] = useState(new Map());
+  // Load emotion data synchronously from the bundled JSON.
+  const [emotionMap] = useState(() => {
+    const m = new Map();
+    for (const [key, val] of Object.entries(emotionsData)) {
+      const [xStr, yStr] = key.split(",");
+      const x = parseInt(xStr, 10);
+      const y = parseInt(yStr, 10);
+      if (x === 0 || y === 0) continue;
+      if (Math.abs(x) > 7 || Math.abs(y) > 7) continue;
+      m.set(coordKey(x, y), {
+        name: val.name,
+        description: val.description,
+        source: "curated",
+        color: val.color || null,
+      });
+    }
+    return m;
+  });
 
   // Precompute 196 nodes (skip anything on x=0 or y=0)
   const initialNodes = useMemo(() => {
@@ -128,31 +147,7 @@ export default function EmotionGrid({ selected, setSelected, loadingSelected, se
   }, []);
 
   // Fetch curated + cached
-  useEffect(() => {
-    let cancelled = false;
-    axios
-      .get(`${API}/emotions`)
-      .then((res) => {
-        if (cancelled) return;
-        const m = new Map();
-        for (const e of res.data.emotions) {
-          m.set(coordKey(e.x, e.y), {
-            name: e.name,
-            description: e.description,
-            source: e.source,
-            color: e.color || null,
-          });
-        }
-        setEmotionMap(m);
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to load emotions", err);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // (no-op — data is now bundled synchronously above)
 
   // Compute grid dimensions — fixed logical spacing; PanZoom handles fit-to-view.
   const gridDims = useMemo(() => {
@@ -359,51 +354,22 @@ export default function EmotionGrid({ selected, setSelected, loadingSelected, se
   }, [selected, animateNodeRadius]);
 
   const handleClick = useCallback(
-    async (gx, gy) => {
+    (gx, gy) => {
       const key = coordKey(gx, gy);
       const cached = emotionMap.get(key);
-      if (cached) {
+      setLoadingSelected(false);
+      if (cached && !cached.name.startsWith("TODO")) {
         setSelected({ x: gx, y: gy, ...cached });
-        setLoadingSelected(false);
-        return;
-      }
-      setSelected(null);
-      setLoadingSelected(true);
-      try {
-        const res = await axios.post(`${API}/emotions/generate`, {
-          x: gx,
-          y: gy,
-        });
-        const data = res.data;
-        setEmotionMap((prev) => {
-          const next = new Map(prev);
-          next.set(key, {
-            name: data.name,
-            description: data.description,
-            source: data.source,
-          });
-          return next;
-        });
-        setSelected({
-          x: gx,
-          y: gy,
-          name: data.name,
-          description: data.description,
-          source: data.source,
-        });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("Generate failed", err);
+      } else {
+        // Unnamed coordinate — show a soft placeholder instead of the raw TODO text.
         setSelected({
           x: gx,
           y: gy,
           name: "Unnamed",
           description:
-            "The cartographer couldn't reach this coordinate. Try again in a moment.",
-          source: "error",
+            "This point on the atlas hasn\u2019t been named yet.",
+          source: "placeholder",
         });
-      } finally {
-        setLoadingSelected(false);
       }
     },
     [emotionMap, setSelected, setLoadingSelected],

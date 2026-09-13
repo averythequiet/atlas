@@ -14,11 +14,15 @@ An interactive emotions chart where you can explore the meanings and experiences
 - Curious explorer / journaler wanting a fresh way to name feelings
 - Therapist / educator introducing affect models
 
-## Architecture
-- **Backend** (FastAPI): `/api/emotions` list, `/api/emotions/generate` (LLM + MongoDB cache)
-- **Frontend** (React 19): d3-force physics grid, framer-motion detail panel, theme toggle
-- **LLM**: emergentintegrations → Anthropic Claude Sonnet 4.6 via Emergent LLM key
-- **DB**: MongoDB `generated_emotions` collection caches on-demand emotions
+## Architecture (Feb 2026 — static)
+- **Frontend** (React 19): the entire app. d3-force physics grid, framer-motion HUD, theme toggle, client-side admin editor.
+- **Data**: `frontend/src/data/emotions.json` — bundled at build time. Source of truth for all emotion names, descriptions, and per-cell colour overrides.
+- **Backend / MongoDB / LLM**: no longer required for the deployed site. The `backend/` folder from the earlier server-backed version is kept in the repo but is not part of the static deploy.
+
+## Deploy target: Netlify (static)
+- `netlify.toml` at repo root; `frontend/public/_redirects` provides SPA fallback so `/admin` resolves to `index.html`.
+- Publish flow: `yarn build` inside `frontend/`, then drag `frontend/build/` onto Netlify.
+- Editor flow: run locally, edit cells, click **Download emotions.json**, drop the file into `frontend/src/data/`, rebuild, redeploy.
 
 ## Implemented (v1, Feb 2026)
 - 196 bubble grid (4 quadrants, 7x7 each, skipping x=0 and y=0) with d3-force collision physics

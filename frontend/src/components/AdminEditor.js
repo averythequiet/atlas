@@ -1,125 +1,94 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import axios from "axios";
-import { Save, Check, Loader2, ExternalLink, LogOut } from "lucide-react";
+import { useMemo, useState, useCallback } from "react";
+import { Download, ExternalLink, Check } from "lucide-react";
+import emotionsData from "@/data/emotions.json";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Grid bounds — matches the frontend/EmotionGrid config.
+const X_MIN = -7;
+const X_MAX = 7;
+const Y_MIN = -7;
+const Y_MAX = 7;
 
 function coordKey(x, y) {
   return `${x},${y}`;
 }
 
-export default function AdminEditor({ passphrase, onLogout }) {
-  const [entries, setEntries] = useState([]); // sorted top-to-bottom, left-to-right
-  const [grid, setGrid] = useState({
-    x_min: -6,
-    x_max: 6,
-    y_min: -6,
-    y_max: 6,
-  });
-  const [status, setStatus] = useState({}); // key -> "idle" | "saving" | "saved" | "error"
-  const [loading, setLoading] = useState(true);
-  const [activeColumn, setActiveColumn] = useState(0); // which x column is visible
-  const timers = useRef({}); // debounce timers per key
-  const authHeaders = { headers: { "X-Admin-Passphrase": passphrase } };
-
-  useEffect(() => {
-    axios
-      .get(`${API}/admin/emotions`, authHeaders)
-      .then((res) => {
-        setEntries(res.data.entries);
-        setGrid(res.data.grid);
-      })
-      .catch((err) => {
-        console.error(err);
-        if (err.response?.status === 401) {
-          onLogout?.();
-        } else {
-          alert("Failed to load emotions. Is the backend running?");
-        }
-      })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Group entries by x-column, sorted by y descending (top-to-bottom).
-  // Skip x=0 — no valid coords along the axis.
-  const columns = [];
-  for (let x = grid.x_min; x <= grid.x_max; x++) {
-    if (x === 0) continue;
-    const col = entries
-      .filter((e) => e.x === x)
-      .sort((a, b) => b.y - a.y); // +y at top
-    columns.push({ x, entries: col });
-  }
-
-  const saveEntry = useCallback((x, y, name, description, color) => {
-    const key = coordKey(x, y);
-    setStatus((s) => ({ ...s, [key]: "saving" }));
-    axios
-      .put(
-        `${API}/admin/emotions/${x}/${y}`,
-        { name, description, color: color || null },
-        authHeaders,
-      )
-      .then(() => {
-        setStatus((s) => ({ ...s, [key]: "saved" }));
-        setTimeout(() => {
-          setStatus((s) => {
-            if (s[key] !== "saved") return s;
-            const next = { ...s };
-            delete next[key];
-            return next;
-          });
-        }, 1400);
-      })
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          onLogout?.();
-          return;
-        }
-        setStatus((s) => ({ ...s, [key]: "error" }));
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleChange = useCallback(
-    (x, y, field, value) => {
+// Build the initial 196-cell working set from the bundled JSON. Any cell
+// missing from the file is materialised as a TODO placeholder so the
+// editor always shows a full grid.
+function buildInitialEntries() {
+  const entries = [];
+  for (let y = Y_MAX; y >= Y_MIN; y--) {
+    if (y === 0) continue;
+    for (let x = X_MIN; x <= X_MAX; x++) {
+      if (x === 0) continue;
       const key = coordKey(x, y);
-      setEntries((es) =>
-        es.map((e) =>
-          e.x === x && e.y === y ? { ...e, [field]: value } : e,
-        ),
-      );
-      // Debounce save per cell
-      if (timers.current[key]) clearTimeout(timers.current[key]);
-      timers.current[key] = setTimeout(() => {
-        const current =
-          entries.find((e) => e.x === x && e.y === y) || {
-            name: "",
-            description: "",
-            color: null,
-          };
-        const merged = { ...current, [field]: value };
-        saveEntry(x, y, merged.name, merged.description, merged.color);
-      }, 700);
-    },
-    [entries, saveEntry],
-  );
-
-  const totalTodo = entries.filter((e) =>
-    e.name.startsWith("TODO"),
-  ).length;
-  const totalDone = entries.length - totalTodo;
-
-  if (loading) {
-    return (
-      <div className="admin-loading" data-testid="admin-loading">
-        <Loader2 className="spin" size={20} />
-        <span>Loading atlas…</span>
-      </div>
-    );
+      const src = emotionsData[key] || {};
+      entries.push({
+        x,
+        y,
+        name: src.name || `TODO (${x},${y})`,
+        description: src.description || `TODO: add description for coordinate (${x}, ${y}).`,
+        color: src.color || null,
+      });
+    }
   }
+  return entries;
+}
+
+// Serialise the working entries back to the on-disk shape.
+function entriesToJson(entries) {
+  const out = {};
+  for (const e of entries) {
+    const entry = {
+      name: e.name.trim(),
+      description: e.description.trim(),
+    };
+    if (e.color) entry.color = e.color;
+    out[coordKey(e.x, e.y)] = entry;
+  }
+  return out;
+}
+
+export default function AdminEditor() {
+  const [entries, setEntries] = useState(() => buildInitialEntries());
+  const [activeColumn, setActiveColumn] = useState(0);
+  const [justDownloaded, setJustDownloaded] = useState(false);
+
+  const columns = useMemo(() => {
+    const cols = [];
+    for (let x = X_MIN; x <= X_MAX; x++) {
+      if (x === 0) continue;
+      const col = entries.filter((e) => e.x === x).sort((a, b) => b.y - a.y);
+      cols.push({ x, entries: col });
+    }
+    return cols;
+  }, [entries]);
+
+  const totals = useMemo(() => {
+    const todo = entries.filter((e) => e.name.startsWith("TODO")).length;
+    return { done: entries.length - todo, total: entries.length, todo };
+  }, [entries]);
+
+  const handleChange = useCallback((x, y, field, value) => {
+    setEntries((es) =>
+      es.map((e) => (e.x === x && e.y === y ? { ...e, [field]: value } : e)),
+    );
+  }, []);
+
+  const handleDownload = useCallback(() => {
+    const json = JSON.stringify(entriesToJson(entries), null, 2) + "\n";
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "emotions.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setJustDownloaded(true);
+    setTimeout(() => setJustDownloaded(false), 2500);
+  }, [entries]);
 
   return (
     <div className="admin-root" data-testid="admin-root">
@@ -127,7 +96,7 @@ export default function AdminEditor({ passphrase, onLogout }) {
         <div className="admin-brand">
           <h1>Atlas — Editor</h1>
           <p>
-            {totalDone} / {entries.length} entries written · {totalTodo}{" "}
+            {totals.done} / {totals.total} entries written · {totals.todo}{" "}
             placeholders remaining
           </p>
         </div>
@@ -142,15 +111,30 @@ export default function AdminEditor({ passphrase, onLogout }) {
           </a>
           <button
             type="button"
-            className="admin-view-link"
-            onClick={onLogout}
-            data-testid="admin-logout"
+            className={`admin-download-btn${justDownloaded ? " is-done" : ""}`}
+            onClick={handleDownload}
+            data-testid="admin-download"
           >
-            <LogOut size={13} strokeWidth={1.7} />
-            Log out
+            {justDownloaded ? (
+              <>
+                <Check size={13} strokeWidth={2} />
+                Downloaded
+              </>
+            ) : (
+              <>
+                <Download size={13} strokeWidth={1.8} />
+                Download emotions.json
+              </>
+            )}
           </button>
         </div>
       </header>
+
+      <div className="admin-hint" data-testid="admin-hint">
+        Edits stay in this browser until you download the file. Replace{" "}
+        <code>frontend/src/data/emotions.json</code> in your project with the
+        downloaded file, then rebuild and redeploy to publish your changes.
+      </div>
 
       <nav className="admin-column-nav" data-testid="admin-column-nav">
         <span className="admin-column-nav-label">Jump to column (x):</span>
@@ -198,17 +182,12 @@ export default function AdminEditor({ passphrase, onLogout }) {
                 {col.x}
               </span>
               <span className="admin-column-title">
-                {col.x < 0
-                  ? "Painful"
-                  : col.x > 0
-                    ? "Pleasant"
-                    : "Neutral"}
+                {col.x < 0 ? "Painful" : "Pleasant"}
               </span>
             </header>
             <div className="admin-column-body">
               {col.entries.map((e) => {
                 const key = coordKey(e.x, e.y);
-                const cellStatus = status[key];
                 const isTodo = e.name.startsWith("TODO");
                 return (
                   <div
@@ -220,17 +199,6 @@ export default function AdminEditor({ passphrase, onLogout }) {
                       <span className="admin-cell-coord">
                         y {e.y >= 0 ? "+" : ""}
                         {e.y}
-                      </span>
-                      <span className="admin-cell-status">
-                        {cellStatus === "saving" && (
-                          <Loader2 className="spin" size={12} />
-                        )}
-                        {cellStatus === "saved" && (
-                          <Check size={12} strokeWidth={2.2} />
-                        )}
-                        {cellStatus === "error" && (
-                          <span className="admin-error">save failed</span>
-                        )}
                       </span>
                     </div>
                     <input
@@ -304,8 +272,8 @@ export default function AdminEditor({ passphrase, onLogout }) {
       </div>
 
       <footer className="admin-footer" data-testid="admin-footer">
-        <Save size={13} strokeWidth={1.7} />
-        Changes save automatically 0.7 seconds after you stop typing.
+        <Download size={13} strokeWidth={1.7} />
+        When you&rsquo;re done editing, click <strong>Download emotions.json</strong> and drop it into <code>frontend/src/data/</code> in your project.
       </footer>
     </div>
   );

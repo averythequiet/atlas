@@ -1,0 +1,10 @@
+[build]
+  base    = "frontend"
+  publish = "build"
+  command = "yarn install && yarn build"
+
+# SPA fallback so client-side routes like /admin resolve to index.html.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
