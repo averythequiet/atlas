@@ -19,6 +19,19 @@ const EXTRA_FIELDS = [
   { key: "urges", label: "Urges it may create", rows: 2 },
 ];
 
+// Motion presets available in the Visit overlay. Each animates the featured
+// bubble differently so the emotion has its own physical texture.
+const MOTION_PRESETS = [
+  { key: "still", label: "Still — gentle default" },
+  { key: "panic", label: "Panic — prickly, vibrating" },
+  { key: "heavy", label: "Heavy — slow bob, weighted" },
+  { key: "pulse", label: "Pulse — upbeat rhythmic" },
+  { key: "breathe", label: "Breathe — regulated in/out" },
+  { key: "radiate", label: "Radiate — rising sparkles" },
+  { key: "flicker", label: "Flicker — unstable candle" },
+  { key: "sink", label: "Sink — downward drift" },
+];
+
 // Build the initial 196-cell working set from the bundled JSON. Any cell
 // missing from the file is materialised as a TODO placeholder so the
 // editor always shows a full grid.
@@ -40,6 +53,7 @@ function buildInitialEntries() {
         events: src.events || "",
         thoughts: src.thoughts || "",
         urges: src.urges || "",
+        motion: src.motion || "still",
       });
     }
   }
@@ -55,6 +69,7 @@ function entriesToJson(entries) {
       description: e.description.trim(),
     };
     if (e.color) entry.color = e.color;
+    if (e.motion && e.motion !== "still") entry.motion = e.motion;
     for (const f of EXTRA_FIELDS) {
       const v = (e[f.key] || "").trim();
       if (v) entry[f.key] = v;
@@ -278,6 +293,23 @@ export default function AdminEditor() {
                         </button>
                       )}
                     </div>
+                    <label className="admin-motion-row">
+                      <span className="admin-motion-label">Motion</span>
+                      <select
+                        className="admin-motion-select"
+                        value={e.motion || "still"}
+                        onChange={(ev) =>
+                          handleChange(e.x, e.y, "motion", ev.target.value)
+                        }
+                        data-testid={`admin-motion-${e.x}-${e.y}`}
+                      >
+                        {MOTION_PRESETS.map((m) => (
+                          <option key={m.key} value={m.key}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <div className="admin-extra">
                       {EXTRA_FIELDS.map((f) => (
                         <label

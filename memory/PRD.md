@@ -37,6 +37,22 @@ Each entry is keyed `"x,y"` and holds:
 - Dismisses on X, backdrop click, or Escape. Body scroll is locked while open.
 - Only offered for coordinates with a real name (not TODO placeholders).
 
+## Visit motion presets
+The featured bubble in the Visit overlay can be given a `motion` preset that
+animates its core, aura, and 8 orbiting particles. All animations are pure
+CSS keyframes (no per-frame JS). Presets available in the admin editor:
+- `still` — gentle default
+- `panic` — prickly jitter + rapid particle spikes
+- `heavy` — slow bob + particles drifting downward
+- `pulse` — rhythmic upbeat scale + particles pinging outward
+- `breathe` — long inhale/exhale with orbs expanding on the breath
+- `radiate` — steady core with particles rising upward like inspiration
+- `flicker` — unstable candle-like opacity + micro-jitter
+- `sink` — slow downward drift with trailing particles
+
+Respects `prefers-reduced-motion`. Preset stored in `emotions.json` as the
+optional `motion` field; omitted when set to `still`.
+
 ## Implemented (v1, Feb 2026)
 - 196 bubble grid (4 quadrants, 7x7 each, skipping x=0 and y=0) with d3-force collision physics
 - Click-to-expand marble physics (synchronized d3-force + CSS scaling via useLayoutEffect)

@@ -126,6 +126,7 @@ export default function EmotionGrid({ selected, setSelected, loadingSelected, se
         events: val.events || "",
         thoughts: val.thoughts || "",
         urges: val.urges || "",
+        motion: val.motion || "still",
       });
     }
     return m;

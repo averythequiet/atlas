@@ -161,7 +161,8 @@
     "physical": "Heat rising in the face and chest, jaw tight, shoulders raised, hands wanting to clench or push.",
     "events": "Being talked over, watching something unfair happen, having a boundary crossed, being blamed for something you didn't do.",
     "thoughts": "\"That is not okay.\" \"They can't get away with this.\" \"I need to say something now.\"",
-    "urges": "Speak sharply, confront, walk away hard, defend yourself or someone else, push back on the source."
+    "urges": "Speak sharply, confront, walk away hard, defend yourself or someone else, push back on the source.",
+    "motion": "panic"
   },
   "-5,6": {
     "name": "TODO (-5,+6)",
@@ -236,12 +237,13 @@
     "description": "A heavy softness that pulls the edges of everything downward. Tears live close to the surface."
   },
   "-3,-5": {
-    "name": "TODO (-3,-5)",
-    "description": "TODO: add description for coordinate (-3, -5).",
+    "name": "Sad",
+    "description": "A slow heaviness settling in — you feel the shape of what's been lost or missed.",
     "physical": "Heaviness behind the eyes and in the chest, slower breath, a pull downward; sometimes a lump in the throat.",
     "events": "A loss, a goodbye, a memory returning, realising something you loved is over or has changed.",
     "thoughts": "\"I miss this.\" \"Something is gone.\" \"I don't want to move today.\"",
-    "urges": "Cry, curl up, be held, talk to someone who remembers, sit with a photo, listen to music that matches."
+    "urges": "Cry, curl up, be held, talk to someone who remembers, sit with a photo, listen to music that matches.",
+    "motion": "heavy"
   },
   "-3,-4": {
     "name": "TODO (-3,-4)",
@@ -613,7 +615,8 @@
     "physical": "A soft rush across the chest, a slight lift under the sternum, hands wanting to move.",
     "events": "Hearing an idea click, seeing someone else's work, a walk that clears the head, a piece of music at the right moment.",
     "thoughts": "\"I could try that.\" \"There's a version of this I'd love to make.\" \"What if I just started?\"",
-    "urges": "Reach for a pen, open a blank page, tell someone, begin before the feeling fades."
+    "urges": "Reach for a pen, open a blank page, tell someone, begin before the feeling fades.",
+    "motion": "radiate"
   },
   "4,5": {
     "name": "TODO (+4,+5)",
@@ -641,7 +644,8 @@
     "physical": "Breath deep and slow, shoulders low, body soft, a settled feeling behind the eyes.",
     "events": "The end of a long task, quiet mornings, walks where nothing needs to happen, being with a person who requires nothing.",
     "thoughts": "\"There is nowhere I need to be.\" \"This is enough.\" \"Everything can wait a little.\"",
-    "urges": "Stay still, watch the light, breathe, put things down, let the moment last a beat longer."
+    "urges": "Stay still, watch the light, breathe, put things down, let the moment last a beat longer.",
+    "motion": "breathe"
   },
   "5,-4": {
     "name": "TODO (+5,-4)",
@@ -741,7 +745,8 @@
     "physical": "Effervescent, weightless in the chest and shoulders; a wide, involuntary smile; energy that wants to move.",
     "events": "An unexpected win, long-awaited good news, a reunion, a private triumph landing at the same time as recognition.",
     "thoughts": "\"This is really happening.\" \"I want to remember exactly this.\" \"Everything is going to be okay.\"",
-    "urges": "Tell everyone, dance, laugh at nothing, run somewhere, savour the moment before it passes."
+    "urges": "Tell everyone, dance, laugh at nothing, run somewhere, savour the moment before it passes.",
+    "motion": "pulse"
   },
   "6,7": {
     "name": "TODO (+6,+7)",

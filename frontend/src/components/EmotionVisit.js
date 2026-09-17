@@ -81,7 +81,8 @@ export default function EmotionVisit({ emotion, onClose }) {
 
           <div className="visit-featured" aria-hidden="true">
             <div
-              className="visit-bubble"
+              className={`visit-bubble motion-${emotion.motion || "still"}`}
+              data-testid={`visit-bubble-motion-${emotion.motion || "still"}`}
               style={{
                 "--bubble-color": bubbleColor,
                 "--bubble-glow": bubbleGlow,
@@ -89,6 +90,15 @@ export default function EmotionVisit({ emotion, onClose }) {
             >
               <div className="visit-bubble-aura" />
               <div className="visit-bubble-core" />
+              <div className="visit-particles">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="visit-particle"
+                    style={{ "--i": i }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
