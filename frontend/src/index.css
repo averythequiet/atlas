@@ -718,6 +718,33 @@ body[data-theme="ethereal"] .visit-overlay {
   will-change: transform, opacity, box-shadow;
 }
 
+/* Heartbeat layer — an expanding ring that pulses at a rate derived from
+   the emotion's energy level. Higher energy → faster beat (frantic), lower
+   energy → slow rest (calm). Sits behind the core so it reads as radiating
+   outward from the bubble like a physical pulse. */
+.visit-bubble-heart {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--bubble-glow);
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation-name: visit-heartbeat;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+.visit-bubble-core {
+  z-index: 1;
+}
+@keyframes visit-heartbeat {
+  0%   { opacity: 0;    transform: scale(0.92); }
+  22%  { opacity: 0.55; transform: scale(1.02); }
+  40%  { opacity: 0.4;  transform: scale(1.1); }
+  100% { opacity: 0;    transform: scale(1.35); }
+}
+
 /* ============ VISIT PARTICLES ============ */
 /* Particles are now generated in JS with per-preset counts (3-8), sizes,
    durations, delays, and start/end offsets (--sx,--sy → --ex,--ey px from

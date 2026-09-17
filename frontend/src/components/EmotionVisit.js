@@ -205,13 +205,17 @@ function coordMotion(x, y) {
   const energy = y / 7; // -1..1
   const speed = 1 + energy * 0.6;   // y=+7: 1.6x, y=-7: 0.4x
   const amp = 1 - energy * 0.18;    // y=+7: 0.82, y=-7: 1.18
-  return { speed, amp };
+  // Heartbeat interval in seconds — 0.5s at y=+7 (~120bpm), 1.0s at y=0
+  // (~60bpm), 1.5s at y=-7 (~40bpm resting). Always runs, so even low-
+  // energy emotions have a slow, calm pulse underneath.
+  const heartDur = 1.0 - energy * 0.5;
+  return { speed, amp, heartDur };
 }
 
 export default function EmotionVisit({ emotion, onClose }) {
   const dialogRef = useRef(null);
   const motionKey = emotion.motion || "still";
-  const { speed, amp } = coordMotion(emotion.x, emotion.y);
+  const { speed, amp, heartDur } = coordMotion(emotion.x, emotion.y);
   const baseTiming = PRESET_TIMING[motionKey] || PRESET_TIMING.still;
   const coreDur = baseTiming.core / speed;
   const auraDur = baseTiming.aura / speed;
@@ -287,6 +291,11 @@ export default function EmotionVisit({ emotion, onClose }) {
               <div
                 className="visit-bubble-aura"
                 style={{ animationDuration: `${auraDur}s` }}
+              />
+              <div
+                className="visit-bubble-heart"
+                aria-hidden="true"
+                style={{ animationDuration: `${heartDur}s` }}
               />
               <div
                 className="visit-bubble-core"
