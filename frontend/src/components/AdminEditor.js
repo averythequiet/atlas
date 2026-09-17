@@ -12,6 +12,13 @@ function coordKey(x, y) {
   return `${x},${y}`;
 }
 
+const EXTRA_FIELDS = [
+  { key: "physical", label: "How it might feel in the body", rows: 2 },
+  { key: "events", label: "What might bring it up", rows: 2 },
+  { key: "thoughts", label: "Thoughts that can evoke it", rows: 2 },
+  { key: "urges", label: "Urges it may create", rows: 2 },
+];
+
 // Build the initial 196-cell working set from the bundled JSON. Any cell
 // missing from the file is materialised as a TODO placeholder so the
 // editor always shows a full grid.
@@ -29,6 +36,10 @@ function buildInitialEntries() {
         name: src.name || `TODO (${x},${y})`,
         description: src.description || `TODO: add description for coordinate (${x}, ${y}).`,
         color: src.color || null,
+        physical: src.physical || "",
+        events: src.events || "",
+        thoughts: src.thoughts || "",
+        urges: src.urges || "",
       });
     }
   }
@@ -44,6 +55,10 @@ function entriesToJson(entries) {
       description: e.description.trim(),
     };
     if (e.color) entry.color = e.color;
+    for (const f of EXTRA_FIELDS) {
+      const v = (e[f.key] || "").trim();
+      if (v) entry[f.key] = v;
+    }
     out[coordKey(e.x, e.y)] = entry;
   }
   return out;
@@ -262,6 +277,26 @@ export default function AdminEditor() {
                           ×
                         </button>
                       )}
+                    </div>
+                    <div className="admin-extra">
+                      {EXTRA_FIELDS.map((f) => (
+                        <label
+                          key={f.key}
+                          className="admin-extra-field"
+                          data-testid={`admin-extra-${f.key}-${e.x}-${e.y}`}
+                        >
+                          <span className="admin-extra-label">{f.label}</span>
+                          <textarea
+                            className="admin-extra-input"
+                            rows={f.rows}
+                            value={e[f.key]}
+                            onChange={(ev) =>
+                              handleChange(e.x, e.y, f.key, ev.target.value)
+                            }
+                            placeholder="Optional"
+                          />
+                        </label>
+                      ))}
                     </div>
                   </div>
                 );

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "@/App.css";
 import EmotionGrid from "@/components/EmotionGrid";
 import EmotionDetailPanel from "@/components/EmotionDetailPanel";
+import EmotionVisit from "@/components/EmotionVisit";
 import ThemeToggle from "@/components/ThemeToggle";
 import PanZoom from "@/components/PanZoom";
 import { HelpCircle } from "lucide-react";
@@ -16,11 +17,33 @@ export default function App() {
   const [legendOpen, setLegendOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [loadingSelected, setLoadingSelected] = useState(false);
+  const [visiting, setVisiting] = useState(null); // emotion currently visited in the overlay
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
+
+  // Lock body scroll while the visit overlay is open.
+  useEffect(() => {
+    if (visiting) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [visiting]);
+
+  // Close the overlay on Escape.
+  useEffect(() => {
+    if (!visiting) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setVisiting(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [visiting]);
 
   // Click on empty canvas (or outside the grid) clears the selection —
   // so the highlight / neighbour glow fades back to the resting atlas.
@@ -30,7 +53,7 @@ export default function App() {
     if (vp && vp.classList.contains("panning")) return;
     if (
       e.target.closest(
-        '[data-testid^="emotion-bubble-"], .detail-panel, .app-header, .pz-controls, .legend',
+        '[data-testid^="emotion-bubble-"], .detail-panel, .app-header, .pz-controls, .legend, .visit-overlay',
       )
     )
       return;
@@ -70,6 +93,7 @@ export default function App() {
       <EmotionDetailPanel
         emotion={selected}
         loading={loadingSelected}
+        onVisit={selected ? () => setVisiting(selected) : null}
         onClose={() => {
           setSelected(null);
           setLoadingSelected(false);
@@ -105,6 +129,13 @@ export default function App() {
           <p>Click any bubble to see the meaning of that emotion.</p>
         </div>
       </aside>
+
+      {visiting && (
+        <EmotionVisit
+          emotion={visiting}
+          onClose={() => setVisiting(null)}
+        />
+      )}
     </div>
   );
 }

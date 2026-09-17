@@ -1,8 +1,15 @@
-import { X } from "lucide-react";
+import { X, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function EmotionDetailPanel({ emotion, loading, onClose }) {
+export default function EmotionDetailPanel({ emotion, loading, onClose, onVisit }) {
   const hasEmotion = !!emotion;
+  // The Visit button is offered only for coordinates that have a real name,
+  // not the "Unnamed" placeholder shown for TODO cells.
+  const canVisit =
+    hasEmotion &&
+    onVisit &&
+    emotion.source !== "placeholder" &&
+    emotion.name !== "Unnamed";
 
   return (
     <aside
@@ -44,6 +51,17 @@ export default function EmotionDetailPanel({ emotion, loading, onClose }) {
           <p className="detail-desc" data-testid="detail-description">
             {emotion.description}
           </p>
+          {canVisit && (
+            <button
+              type="button"
+              className="detail-visit-btn"
+              onClick={onVisit}
+              data-testid="detail-visit"
+            >
+              Visit this emotion
+              <ArrowUpRight size={13} strokeWidth={1.8} />
+            </button>
+          )}
         </motion.div>
       ) : (
         <div className="detail-empty" data-testid="detail-empty">

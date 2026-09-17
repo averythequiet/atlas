@@ -24,6 +24,19 @@ An interactive emotions chart where you can explore the meanings and experiences
 - Publish flow: `yarn build` inside `frontend/`, then drag `frontend/build/` onto Netlify.
 - Editor flow: run locally, edit cells, click **Download emotions.json**, drop the file into `frontend/src/data/`, rebuild, redeploy.
 
+## Emotion data schema (frontend/src/data/emotions.json)
+Each entry is keyed `"x,y"` and holds:
+- `name` (string, required)
+- `description` (string, required — the short line shown in the HUD)
+- `color` (optional hex like `#a1b2c3`, admin override)
+- `physical`, `events`, `thoughts`, `urges` (optional strings) — the four expanded sections shown in the Visit overlay. If none are filled, the overlay shows a soft "More detail is still being written" line.
+
+## Visit overlay
+- Users click **Visit this emotion** in the HUD to open a pokedex-style modal.
+- Card shows a scaled featured bubble (same colour + aura), the coordinate, name, description, and up to four scrollable sections.
+- Dismisses on X, backdrop click, or Escape. Body scroll is locked while open.
+- Only offered for coordinates with a real name (not TODO placeholders).
+
 ## Implemented (v1, Feb 2026)
 - 196 bubble grid (4 quadrants, 7x7 each, skipping x=0 and y=0) with d3-force collision physics
 - Click-to-expand marble physics (synchronized d3-force + CSS scaling via useLayoutEffect)

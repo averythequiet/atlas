@@ -122,6 +122,10 @@ export default function EmotionGrid({ selected, setSelected, loadingSelected, se
         description: val.description,
         source: "curated",
         color: val.color || null,
+        physical: val.physical || "",
+        events: val.events || "",
+        thoughts: val.thoughts || "",
+        urges: val.urges || "",
       });
     }
     return m;
