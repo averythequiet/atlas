@@ -1026,12 +1026,21 @@ body[data-theme="ethereal"] .visit-overlay {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .visit-bubble-core,
-  .visit-bubble-aura,
-  .visit-particle {
+  /* Only disable the rapid / jarring motions — leave the gentle ones
+     (still-breath, breathe, heavy, sink, radiate) alone so each emotion
+     still has a distinct texture even when reduced motion is requested. */
+  .motion-panic .visit-bubble-core,
+  .motion-panic .visit-bubble-aura,
+  .motion-panic .visit-particle,
+  .motion-pulse .visit-bubble-core,
+  .motion-pulse .visit-particle,
+  .motion-flicker .visit-bubble-core,
+  .motion-flicker .visit-bubble-aura,
+  .motion-flicker .visit-particle {
     animation: none !important;
   }
-  .visit-particle { opacity: 0.35; }
+  .motion-panic .visit-particle,
+  .motion-flicker .visit-particle { opacity: 0.55; }
 }
 
 .visit-body {
