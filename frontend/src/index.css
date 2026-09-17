@@ -719,17 +719,21 @@ body[data-theme="ethereal"] .visit-overlay {
 }
 
 /* ============ VISIT PARTICLES ============ */
-/* 8 orbs orbiting the featured bubble. Each preset controls their movement,
-   fade, and size to give the bubble its own emotional texture and depth. */
+/* Particles are now generated in JS with per-preset counts (3-8), sizes,
+   durations, delays, and start/end offsets (--sx,--sy → --ex,--ey px from
+   the bubble centre). Each motion animation interpolates between those
+   variables so no two particles follow the same path. */
 .visit-particles {
   position: absolute;
   inset: -60%;
   pointer-events: none;
 }
 .visit-particle {
-  --size: 10px;
-  --angle: calc(var(--i) * 45deg);
-  --radius: 110px;
+  --size: 8px;
+  --sx: 0px;
+  --sy: 0px;
+  --ex: 0px;
+  --ey: 0px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -742,31 +746,25 @@ body[data-theme="ethereal"] .visit-overlay {
     0 0 8px var(--bubble-glow),
     0 0 16px var(--bubble-glow);
   opacity: 0;
-  transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(var(--angle) * -1));
+  animation-iteration-count: infinite;
   will-change: transform, opacity;
 }
 
-/* ---- STILL (default) ---- gentle breath and slow orbiting drift. */
+/* ---- STILL (default) ---- gentle breath and slow drifting orbs. */
 .motion-still .visit-bubble-core {
   animation: motion-still-breath 6s ease-in-out infinite;
 }
 .motion-still .visit-particle {
-  animation: motion-still-drift 5s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.6s);
+  animation-name: p-drift;
+  animation-timing-function: ease-in-out;
 }
 @keyframes motion-still-breath {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.035); }
 }
-@keyframes motion-still-drift {
-  0%, 100% {
-    opacity: 0.25;
-    transform: rotate(var(--angle)) translate(100px) rotate(calc(var(--angle) * -1));
-  }
-  50% {
-    opacity: 0.7;
-    transform: rotate(var(--angle)) translate(126px) rotate(calc(var(--angle) * -1));
-  }
+@keyframes p-drift {
+  0%, 100% { opacity: 0.15; transform: translate(var(--sx), var(--sy)); }
+  50%      { opacity: 0.7;  transform: translate(var(--ex), var(--ey)); }
 }
 
 /* ---- PANIC ---- prickly, vibrating; particles spike outward erratically. */
@@ -778,10 +776,8 @@ body[data-theme="ethereal"] .visit-overlay {
   filter: blur(14px);
 }
 .motion-panic .visit-particle {
-  --size: 7px;
-  --radius: 100px;
-  animation: motion-panic-particle 0.55s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.07s);
+  animation-name: p-dart;
+  animation-timing-function: ease-out;
 }
 @keyframes motion-panic-jitter {
   0%   { transform: translate(0, 0); }
@@ -798,19 +794,10 @@ body[data-theme="ethereal"] .visit-overlay {
   55%      { opacity: 0.3;  transform: scale(0.9); }
   75%      { opacity: 0.95; transform: scale(1.08); }
 }
-@keyframes motion-panic-particle {
-  0% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(58px) rotate(calc(var(--angle) * -1)) scale(0.4);
-  }
-  35% {
-    opacity: 1;
-    transform: rotate(var(--angle)) translate(112px) rotate(calc(var(--angle) * -1)) scale(1.1);
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(140px) rotate(calc(var(--angle) * -1)) scale(0.5);
-  }
+@keyframes p-dart {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.3); }
+  30%  { opacity: 1; transform: translate(calc(var(--sx) * 0.4 + var(--ex) * 0.6), calc(var(--sy) * 0.4 + var(--ey) * 0.6)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0.5); }
 }
 
 /* ---- HEAVY ---- slow bob; particles drift downward like weight. */
@@ -821,9 +808,8 @@ body[data-theme="ethereal"] .visit-overlay {
   animation: motion-heavy-aura 4.5s ease-in-out infinite;
 }
 .motion-heavy .visit-particle {
-  --size: 9px;
-  animation: motion-heavy-fall 3.6s ease-in infinite;
-  animation-delay: calc(var(--i) * -0.45s);
+  animation-name: p-fall;
+  animation-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
 }
 @keyframes motion-heavy-bob {
   0%, 100% { transform: translateY(-4px); }
@@ -833,18 +819,10 @@ body[data-theme="ethereal"] .visit-overlay {
   0%, 100% { opacity: 0.55; filter: blur(28px); }
   50%      { opacity: 0.85; filter: blur(34px); }
 }
-@keyframes motion-heavy-fall {
-  0% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(55px) rotate(calc(var(--angle) * -1)) translateY(-12px);
-  }
-  20% {
-    opacity: 0.85;
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(75px) rotate(calc(var(--angle) * -1)) translateY(90px);
-  }
+@keyframes p-fall {
+  0%   { opacity: 0;   transform: translate(var(--sx), var(--sy)); }
+  20%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: translate(var(--ex), var(--ey)); }
 }
 
 /* ---- PULSE ---- rhythmic upbeat; core snaps, particles ping outward. */
@@ -855,9 +833,8 @@ body[data-theme="ethereal"] .visit-overlay {
   animation: motion-pulse-aura 0.75s ease-out infinite;
 }
 .motion-pulse .visit-particle {
-  --size: 8px;
-  animation: motion-pulse-ping 1.5s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.19s);
+  animation-name: p-ping;
+  animation-timing-function: ease-out;
 }
 @keyframes motion-pulse-beat {
   0%, 100% { transform: scale(1); }
@@ -870,19 +847,10 @@ body[data-theme="ethereal"] .visit-overlay {
   30%  { opacity: 1;    transform: scale(1.22); }
   100% { opacity: 0.5;  transform: scale(0.92); }
 }
-@keyframes motion-pulse-ping {
-  0% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(70px) rotate(calc(var(--angle) * -1)) scale(0.3);
-  }
-  30% {
-    opacity: 1;
-    transform: rotate(var(--angle)) translate(104px) rotate(calc(var(--angle) * -1)) scale(1.1);
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(140px) rotate(calc(var(--angle) * -1)) scale(0.7);
-  }
+@keyframes p-ping {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.2); }
+  25%  { opacity: 1; transform: translate(calc(var(--sx) * 0.3 + var(--ex) * 0.7), calc(var(--sy) * 0.3 + var(--ey) * 0.7)) scale(1.1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0.6); }
 }
 
 /* ---- BREATHE ---- slow inhale/exhale mimicking regulated breathing. */
@@ -893,9 +861,8 @@ body[data-theme="ethereal"] .visit-overlay {
   animation: motion-breathe-aura 6.5s ease-in-out infinite;
 }
 .motion-breathe .visit-particle {
-  --size: 9px;
-  animation: motion-breathe-orb 6.5s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.81s);
+  animation-name: p-breathe;
+  animation-timing-function: ease-in-out;
 }
 @keyframes motion-breathe-core {
   0%, 100% { transform: scale(0.92); }
@@ -905,15 +872,9 @@ body[data-theme="ethereal"] .visit-overlay {
   0%, 100% { opacity: 0.35; filter: blur(20px); }
   50%      { opacity: 1;    filter: blur(32px); }
 }
-@keyframes motion-breathe-orb {
-  0%, 100% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(68px) rotate(calc(var(--angle) * -1));
-  }
-  50% {
-    opacity: 0.85;
-    transform: rotate(var(--angle)) translate(118px) rotate(calc(var(--angle) * -1));
-  }
+@keyframes p-breathe {
+  0%, 100% { opacity: 0.25; transform: translate(var(--sx), var(--sy)) scale(0.85); }
+  50%      { opacity: 0.9;  transform: translate(var(--ex), var(--ey)) scale(1.1); }
 }
 
 /* ---- RADIATE ---- calm core; particles rise upward like inspiration. */
@@ -924,11 +885,8 @@ body[data-theme="ethereal"] .visit-overlay {
   animation: motion-radiate-aura 3s ease-in-out infinite;
 }
 .motion-radiate .visit-particle {
-  --size: 8px;
-  --spread: calc((var(--i) - 3.5) * 22px);
-  animation: motion-radiate-rise 2.8s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.32s);
-  transform: translate(var(--spread), 30px);
+  animation-name: p-rise;
+  animation-timing-function: ease-out;
 }
 @keyframes motion-radiate-glow {
   0%, 100% {
@@ -944,18 +902,10 @@ body[data-theme="ethereal"] .visit-overlay {
   0%, 100% { opacity: 0.65; transform: scale(1); }
   50%      { opacity: 1;    transform: scale(1.2); }
 }
-@keyframes motion-radiate-rise {
-  0% {
-    opacity: 0;
-    transform: translate(var(--spread), 40px) scale(0.4);
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--spread), -140px) scale(1.1);
-  }
+@keyframes p-rise {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.4); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(1.05); }
 }
 
 /* ---- FLICKER ---- unstable candle-like anxiety. */
@@ -966,9 +916,8 @@ body[data-theme="ethereal"] .visit-overlay {
   animation: motion-flicker-aura 0.35s ease-in-out infinite;
 }
 .motion-flicker .visit-particle {
-  --size: 6px;
-  animation: motion-flicker-spark 1.1s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.14s);
+  animation-name: p-spark;
+  animation-timing-function: ease-out;
 }
 @keyframes motion-flicker-core {
   0%   { opacity: 1;    transform: translate(0, 0) scale(1); }
@@ -983,10 +932,11 @@ body[data-theme="ethereal"] .visit-overlay {
   35%      { opacity: 1; }
   60%      { opacity: 0.25; }
 }
-@keyframes motion-flicker-spark {
-  0%   { opacity: 0; transform: rotate(var(--angle)) translate(65px) rotate(calc(var(--angle) * -1)) scale(0.4); }
-  35%  { opacity: 1; }
-  100% { opacity: 0; transform: rotate(var(--angle)) translate(115px) rotate(calc(var(--angle) * -1)) scale(1); }
+@keyframes p-spark {
+  0%   { opacity: 0;    transform: translate(var(--sx), var(--sy)) scale(0.3); }
+  30%  { opacity: 0.95; transform: translate(calc(var(--sx) * 0.5 + var(--ex) * 0.5), calc(var(--sy) * 0.5 + var(--ey) * 0.5)) scale(1); }
+  60%  { opacity: 0.3; }
+  100% { opacity: 0;    transform: translate(var(--ex), var(--ey)) scale(0.7); }
 }
 
 /* ---- SINK ---- slow downward drift; particles trail below like tears. */
@@ -998,9 +948,8 @@ body[data-theme="ethereal"] .visit-overlay {
   filter: blur(28px);
 }
 .motion-sink .visit-particle {
-  --size: 8px;
-  animation: motion-sink-drop 4s ease-in infinite;
-  animation-delay: calc(var(--i) * -0.5s);
+  animation-name: p-tear;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.66, 0.16);
 }
 @keyframes motion-sink-drift {
   0%   { transform: translateY(-6px); }
@@ -1011,18 +960,10 @@ body[data-theme="ethereal"] .visit-overlay {
   0%, 100% { opacity: 0.5; }
   50%      { opacity: 0.8; }
 }
-@keyframes motion-sink-drop {
-  0% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(48px) rotate(calc(var(--angle) * -1)) translateY(-6px);
-  }
-  20% {
-    opacity: 0.9;
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(var(--angle)) translate(58px) rotate(calc(var(--angle) * -1)) translateY(110px);
-  }
+@keyframes p-tear {
+  0%   { opacity: 0;   transform: translate(var(--sx), var(--sy)) scale(0.6); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: translate(var(--ex), var(--ey)) scale(0.95); }
 }
 
 @media (prefers-reduced-motion: reduce) {
