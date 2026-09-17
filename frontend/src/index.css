@@ -686,7 +686,7 @@ body[data-theme="ethereal"] .visit-overlay {
    bubble but scaled up so it reads as a portrait. */
 .visit-featured {
   position: relative;
-  padding: 42px 20px 20px 20px;
+  padding: 78px 20px 34px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -727,9 +727,9 @@ body[data-theme="ethereal"] .visit-overlay {
   pointer-events: none;
 }
 .visit-particle {
-  --size: 8px;
+  --size: 10px;
   --angle: calc(var(--i) * 45deg);
-  --radius: 96px;
+  --radius: 110px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -738,269 +738,290 @@ body[data-theme="ethereal"] .visit-overlay {
   margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
   border-radius: 50%;
   background: var(--bubble-color);
-  box-shadow: 0 0 10px var(--bubble-glow);
+  box-shadow:
+    0 0 8px var(--bubble-glow),
+    0 0 16px var(--bubble-glow);
   opacity: 0;
   transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(var(--angle) * -1));
   will-change: transform, opacity;
 }
 
-/* ---- STILL (default) ---- */
+/* ---- STILL (default) ---- gentle breath and slow orbiting drift. */
+.motion-still .visit-bubble-core {
+  animation: motion-still-breath 6s ease-in-out infinite;
+}
 .motion-still .visit-particle {
-  animation: particle-drift 5s ease-in-out infinite alternate;
+  animation: motion-still-drift 5s ease-in-out infinite;
   animation-delay: calc(var(--i) * -0.6s);
 }
-@keyframes particle-drift {
-  0%   { opacity: 0.2; }
-  50%  { opacity: 0.55; }
-  100% { opacity: 0.2; }
+@keyframes motion-still-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.035); }
+}
+@keyframes motion-still-drift {
+  0%, 100% {
+    opacity: 0.25;
+    transform: rotate(var(--angle)) translate(100px) rotate(calc(var(--angle) * -1));
+  }
+  50% {
+    opacity: 0.7;
+    transform: rotate(var(--angle)) translate(126px) rotate(calc(var(--angle) * -1));
+  }
 }
 
 /* ---- PANIC ---- prickly, vibrating; particles spike outward erratically. */
 .motion-panic .visit-bubble-core {
-  animation: motion-panic-jitter 0.11s infinite;
+  animation: motion-panic-jitter 0.16s linear infinite;
 }
 .motion-panic .visit-bubble-aura {
-  animation: motion-panic-prickle 0.9s ease-in-out infinite;
+  animation: motion-panic-prickle 0.7s ease-in-out infinite;
   filter: blur(14px);
 }
 .motion-panic .visit-particle {
-  --size: 5px;
-  --radius: 88px;
-  animation: motion-panic-particle 0.35s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.045s);
+  --size: 7px;
+  --radius: 100px;
+  animation: motion-panic-particle 0.55s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.07s);
 }
 @keyframes motion-panic-jitter {
   0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2px, 1.5px); }
-  40%  { transform: translate(2.5px, -1px); }
-  60%  { transform: translate(-1.5px, -2px); }
-  80%  { transform: translate(2px, 1.5px); }
-  100% { transform: translate(-1px, 2px); }
+  15%  { transform: translate(-5px, 4px); }
+  32%  { transform: translate(6px, -3px); }
+  50%  { transform: translate(-4px, -5px); }
+  68%  { transform: translate(5px, 4px); }
+  85%  { transform: translate(-3px, 5px); }
+  100% { transform: translate(4px, -2px); }
 }
 @keyframes motion-panic-prickle {
-  0%, 100% { opacity: 0.65; transform: scale(1); }
-  30%      { opacity: 1;    transform: scale(1.08); }
-  55%      { opacity: 0.4;  transform: scale(0.94); }
-  75%      { opacity: 0.9;  transform: scale(1.04); }
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  30%      { opacity: 1;    transform: scale(1.14); }
+  55%      { opacity: 0.3;  transform: scale(0.9); }
+  75%      { opacity: 0.95; transform: scale(1.08); }
 }
 @keyframes motion-panic-particle {
   0% {
     opacity: 0;
     transform: rotate(var(--angle)) translate(58px) rotate(calc(var(--angle) * -1)) scale(0.4);
   }
-  40% {
+  35% {
     opacity: 1;
-    transform: rotate(var(--angle)) translate(100px) rotate(calc(var(--angle) * -1)) scale(1);
+    transform: rotate(var(--angle)) translate(112px) rotate(calc(var(--angle) * -1)) scale(1.1);
   }
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(112px) rotate(calc(var(--angle) * -1)) scale(0.6);
+    transform: rotate(var(--angle)) translate(140px) rotate(calc(var(--angle) * -1)) scale(0.5);
   }
 }
 
 /* ---- HEAVY ---- slow bob; particles drift downward like weight. */
 .motion-heavy .visit-bubble-core {
-  animation: motion-heavy-bob 5.6s ease-in-out infinite;
+  animation: motion-heavy-bob 4.5s ease-in-out infinite;
 }
 .motion-heavy .visit-bubble-aura {
-  animation: motion-heavy-aura 5.6s ease-in-out infinite;
+  animation: motion-heavy-aura 4.5s ease-in-out infinite;
 }
 .motion-heavy .visit-particle {
-  --size: 7px;
-  animation: motion-heavy-fall 4.2s ease-in infinite;
-  animation-delay: calc(var(--i) * -0.5s);
+  --size: 9px;
+  animation: motion-heavy-fall 3.6s ease-in infinite;
+  animation-delay: calc(var(--i) * -0.45s);
 }
 @keyframes motion-heavy-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
+  0%, 100% { transform: translateY(-4px); }
+  50%      { transform: translateY(14px); }
 }
 @keyframes motion-heavy-aura {
   0%, 100% { opacity: 0.55; filter: blur(28px); }
-  50%      { opacity: 0.7;  filter: blur(30px); }
+  50%      { opacity: 0.85; filter: blur(34px); }
 }
 @keyframes motion-heavy-fall {
   0% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(60px) rotate(calc(var(--angle) * -1)) translateY(-8px);
+    transform: rotate(var(--angle)) translate(55px) rotate(calc(var(--angle) * -1)) translateY(-12px);
   }
-  25% {
-    opacity: 0.7;
+  20% {
+    opacity: 0.85;
   }
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(72px) rotate(calc(var(--angle) * -1)) translateY(60px);
+    transform: rotate(var(--angle)) translate(75px) rotate(calc(var(--angle) * -1)) translateY(90px);
   }
 }
 
 /* ---- PULSE ---- rhythmic upbeat; core snaps, particles ping outward. */
 .motion-pulse .visit-bubble-core {
-  animation: motion-pulse-beat 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) infinite;
+  animation: motion-pulse-beat 0.75s cubic-bezier(0.3, 1.4, 0.5, 1) infinite;
 }
 .motion-pulse .visit-bubble-aura {
-  animation: motion-pulse-aura 0.7s ease-out infinite;
+  animation: motion-pulse-aura 0.75s ease-out infinite;
 }
 .motion-pulse .visit-particle {
-  --size: 6px;
-  animation: motion-pulse-ping 1.4s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.175s);
+  --size: 8px;
+  animation: motion-pulse-ping 1.5s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.19s);
 }
 @keyframes motion-pulse-beat {
   0%, 100% { transform: scale(1); }
-  20%      { transform: scale(1.075); }
-  40%      { transform: scale(0.98); }
-  60%      { transform: scale(1.03); }
+  20%      { transform: scale(1.14); }
+  45%      { transform: scale(0.94); }
+  65%      { transform: scale(1.06); }
 }
 @keyframes motion-pulse-aura {
-  0%   { opacity: 0.5;  transform: scale(0.95); }
-  35%  { opacity: 1;    transform: scale(1.15); }
-  100% { opacity: 0.5;  transform: scale(0.95); }
+  0%   { opacity: 0.5;  transform: scale(0.92); }
+  30%  { opacity: 1;    transform: scale(1.22); }
+  100% { opacity: 0.5;  transform: scale(0.92); }
 }
 @keyframes motion-pulse-ping {
   0% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(72px) rotate(calc(var(--angle) * -1)) scale(0.4);
+    transform: rotate(var(--angle)) translate(70px) rotate(calc(var(--angle) * -1)) scale(0.3);
   }
-  35% {
-    opacity: 0.95;
-    transform: rotate(var(--angle)) translate(96px) rotate(calc(var(--angle) * -1)) scale(1);
+  30% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translate(104px) rotate(calc(var(--angle) * -1)) scale(1.1);
   }
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(126px) rotate(calc(var(--angle) * -1)) scale(0.7);
+    transform: rotate(var(--angle)) translate(140px) rotate(calc(var(--angle) * -1)) scale(0.7);
   }
 }
 
 /* ---- BREATHE ---- slow inhale/exhale mimicking regulated breathing. */
 .motion-breathe .visit-bubble-core {
-  animation: motion-breathe-core 7.5s ease-in-out infinite;
+  animation: motion-breathe-core 6.5s ease-in-out infinite;
 }
 .motion-breathe .visit-bubble-aura {
-  animation: motion-breathe-aura 7.5s ease-in-out infinite;
+  animation: motion-breathe-aura 6.5s ease-in-out infinite;
 }
 .motion-breathe .visit-particle {
-  --size: 7px;
-  animation: motion-breathe-orb 7.5s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.94s);
+  --size: 9px;
+  animation: motion-breathe-orb 6.5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.81s);
 }
 @keyframes motion-breathe-core {
-  0%, 100% { transform: scale(0.97); }
-  45%      { transform: scale(1.04); }
-  55%      { transform: scale(1.04); }
+  0%, 100% { transform: scale(0.92); }
+  50%      { transform: scale(1.09); }
 }
 @keyframes motion-breathe-aura {
-  0%, 100% { opacity: 0.45; filter: blur(22px); }
-  50%      { opacity: 0.95; filter: blur(30px); }
+  0%, 100% { opacity: 0.35; filter: blur(20px); }
+  50%      { opacity: 1;    filter: blur(32px); }
 }
 @keyframes motion-breathe-orb {
   0%, 100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(72px) rotate(calc(var(--angle) * -1));
+    transform: rotate(var(--angle)) translate(68px) rotate(calc(var(--angle) * -1));
   }
   50% {
-    opacity: 0.75;
-    transform: rotate(var(--angle)) translate(102px) rotate(calc(var(--angle) * -1));
+    opacity: 0.85;
+    transform: rotate(var(--angle)) translate(118px) rotate(calc(var(--angle) * -1));
   }
 }
 
 /* ---- RADIATE ---- calm core; particles rise upward like inspiration. */
 .motion-radiate .visit-bubble-core {
-  animation: motion-radiate-glow 3.4s ease-in-out infinite;
+  animation: motion-radiate-glow 3s ease-in-out infinite;
 }
 .motion-radiate .visit-bubble-aura {
-  animation: motion-radiate-aura 3.4s ease-in-out infinite;
+  animation: motion-radiate-aura 3s ease-in-out infinite;
 }
 .motion-radiate .visit-particle {
-  --size: 6px;
-  --spread: calc((var(--i) - 3.5) * 18px);
-  animation: motion-radiate-rise 3s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.35s);
-  transform: translate(var(--spread), 0);
+  --size: 8px;
+  --spread: calc((var(--i) - 3.5) * 22px);
+  animation: motion-radiate-rise 2.8s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.32s);
+  transform: translate(var(--spread), 30px);
 }
 @keyframes motion-radiate-glow {
-  0%, 100% { box-shadow: 0 12px 44px -8px var(--bubble-glow), 0 0 20px var(--bubble-glow); }
-  50%      { box-shadow: 0 12px 60px -6px var(--bubble-glow), 0 0 36px var(--bubble-glow); }
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 12px 44px -8px var(--bubble-glow), 0 0 20px var(--bubble-glow);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 12px 66px -6px var(--bubble-glow), 0 0 44px var(--bubble-glow);
+  }
 }
 @keyframes motion-radiate-aura {
-  0%, 100% { opacity: 0.7;  transform: scale(1); }
-  50%      { opacity: 1;    transform: scale(1.15); }
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.2); }
 }
 @keyframes motion-radiate-rise {
   0% {
     opacity: 0;
-    transform: translate(var(--spread), 20px) scale(0.5);
+    transform: translate(var(--spread), 40px) scale(0.4);
   }
-  25% {
-    opacity: 0.9;
+  20% {
+    opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translate(var(--spread), -110px) scale(1);
+    transform: translate(var(--spread), -140px) scale(1.1);
   }
 }
 
 /* ---- FLICKER ---- unstable candle-like anxiety. */
 .motion-flicker .visit-bubble-core {
-  animation: motion-flicker-core 0.55s ease-in-out infinite;
+  animation: motion-flicker-core 0.5s ease-in-out infinite;
 }
 .motion-flicker .visit-bubble-aura {
-  animation: motion-flicker-aura 0.4s ease-in-out infinite;
+  animation: motion-flicker-aura 0.35s ease-in-out infinite;
 }
 .motion-flicker .visit-particle {
-  --size: 4px;
-  animation: motion-flicker-spark 1.2s ease-out infinite;
-  animation-delay: calc(var(--i) * -0.15s);
+  --size: 6px;
+  animation: motion-flicker-spark 1.1s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.14s);
 }
 @keyframes motion-flicker-core {
   0%   { opacity: 1;    transform: translate(0, 0) scale(1); }
-  30%  { opacity: 0.75; transform: translate(-1px, 1px) scale(0.98); }
-  55%  { opacity: 1;    transform: translate(1px, -1px) scale(1.02); }
-  80%  { opacity: 0.85; transform: translate(0.5px, 1px) scale(1); }
-  100% { opacity: 1;    transform: translate(-0.5px, 0) scale(1); }
+  22%  { opacity: 0.55; transform: translate(-3px, 2px) scale(0.94); }
+  44%  { opacity: 1;    transform: translate(3px, -2px) scale(1.05); }
+  66%  { opacity: 0.7;  transform: translate(1px, 3px) scale(0.98); }
+  88%  { opacity: 0.95; transform: translate(-2px, -1px) scale(1.02); }
+  100% { opacity: 1;    transform: translate(0, 0) scale(1); }
 }
 @keyframes motion-flicker-aura {
-  0%, 100% { opacity: 0.5; }
-  40%      { opacity: 0.95; }
-  70%      { opacity: 0.35; }
+  0%, 100% { opacity: 0.4; }
+  35%      { opacity: 1; }
+  60%      { opacity: 0.25; }
 }
 @keyframes motion-flicker-spark {
-  0%   { opacity: 0; transform: rotate(var(--angle)) translate(70px) rotate(calc(var(--angle) * -1)) scale(0.5); }
-  40%  { opacity: 0.9; }
-  100% { opacity: 0; transform: rotate(var(--angle)) translate(100px) rotate(calc(var(--angle) * -1)) scale(0.9); }
+  0%   { opacity: 0; transform: rotate(var(--angle)) translate(65px) rotate(calc(var(--angle) * -1)) scale(0.4); }
+  35%  { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translate(115px) rotate(calc(var(--angle) * -1)) scale(1); }
 }
 
 /* ---- SINK ---- slow downward drift; particles trail below like tears. */
 .motion-sink .visit-bubble-core {
-  animation: motion-sink-drift 6s ease-in-out infinite;
+  animation: motion-sink-drift 5s ease-in-out infinite;
 }
 .motion-sink .visit-bubble-aura {
-  animation: motion-sink-aura 6s ease-in-out infinite;
+  animation: motion-sink-aura 5s ease-in-out infinite;
   filter: blur(28px);
 }
 .motion-sink .visit-particle {
-  --size: 6px;
-  animation: motion-sink-drop 4.8s ease-in infinite;
-  animation-delay: calc(var(--i) * -0.6s);
+  --size: 8px;
+  animation: motion-sink-drop 4s ease-in infinite;
+  animation-delay: calc(var(--i) * -0.5s);
 }
 @keyframes motion-sink-drift {
-  0%   { transform: translateY(-3px); }
-  50%  { transform: translateY(5px); }
-  100% { transform: translateY(-3px); }
+  0%   { transform: translateY(-6px); }
+  50%  { transform: translateY(12px); }
+  100% { transform: translateY(-6px); }
 }
 @keyframes motion-sink-aura {
   0%, 100% { opacity: 0.5; }
-  50%      { opacity: 0.65; }
+  50%      { opacity: 0.8; }
 }
 @keyframes motion-sink-drop {
   0% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(50px) rotate(calc(var(--angle) * -1)) translateY(0);
+    transform: rotate(var(--angle)) translate(48px) rotate(calc(var(--angle) * -1)) translateY(-6px);
   }
-  25% {
-    opacity: 0.8;
+  20% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translate(60px) rotate(calc(var(--angle) * -1)) translateY(80px);
+    transform: rotate(var(--angle)) translate(58px) rotate(calc(var(--angle) * -1)) translateY(110px);
   }
 }
 
