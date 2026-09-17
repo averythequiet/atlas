@@ -164,23 +164,57 @@ const MOTION_PROFILES = {
   },
 };
 
-function buildParticles(motionKey) {
+function buildParticles(motionKey, amp, speed) {
   const profile = MOTION_PROFILES[motionKey] || MOTION_PROFILES.still;
   const count = randInt(profile.count[0], profile.count[1]);
   return Array.from({ length: count }, () => {
     const { sx, sy, ex, ey } = profile.pick();
     return {
       size: rand(profile.size[0], profile.size[1]),
-      dur: rand(profile.dur[0], profile.dur[1]),
+      // Faster overall at high energy, slower at low energy.
+      dur: rand(profile.dur[0], profile.dur[1]) / speed,
       delay: rand(0, profile.delayRange) * -1, // negative → starts mid-cycle
-      sx, sy, ex, ey,
+      // Tighter movements at high energy, wider sweeps at low energy.
+      sx: sx * amp,
+      sy: sy * amp,
+      ex: ex * amp,
+      ey: ey * amp,
     };
   });
+}
+
+// Base core/aura animation durations per preset (seconds). These get scaled
+// by the coord-derived `speed` so the same preset feels frantic at high
+// energy and almost frozen at low energy.
+const PRESET_TIMING = {
+  still:   { core: 6.0,  aura: 6.0 },
+  panic:   { core: 0.16, aura: 0.7 },
+  heavy:   { core: 4.5,  aura: 4.5 },
+  pulse:   { core: 0.75, aura: 0.75 },
+  breathe: { core: 6.5,  aura: 6.5 },
+  radiate: { core: 3.0,  aura: 3.0 },
+  flicker: { core: 0.5,  aura: 0.35 },
+  sink:    { core: 5.0,  aura: 5.0 },
+};
+
+// Turn a coordinate into a tempo + amplitude multiplier. High-energy
+// emotions (y > 0) run faster and tighter; low-energy emotions (y < 0)
+// slow down and take broader, softer sweeps — like the difference between
+// a nervous vibration and a heavy, almost-frozen weight.
+function coordMotion(x, y) {
+  const energy = y / 7; // -1..1
+  const speed = 1 + energy * 0.6;   // y=+7: 1.6x, y=-7: 0.4x
+  const amp = 1 - energy * 0.18;    // y=+7: 0.82, y=-7: 1.18
+  return { speed, amp };
 }
 
 export default function EmotionVisit({ emotion, onClose }) {
   const dialogRef = useRef(null);
   const motionKey = emotion.motion || "still";
+  const { speed, amp } = coordMotion(emotion.x, emotion.y);
+  const baseTiming = PRESET_TIMING[motionKey] || PRESET_TIMING.still;
+  const coreDur = baseTiming.core / speed;
+  const auraDur = baseTiming.aura / speed;
 
   useEffect(() => {
     dialogRef.current?.focus();
@@ -191,7 +225,8 @@ export default function EmotionVisit({ emotion, onClose }) {
   // choreographed. `motionKey` in the deps means switching to a different
   // motion preset also re-rolls the particles.
   const particles = useMemo(
-    () => buildParticles(motionKey),
+    () => buildParticles(motionKey, amp, speed),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [motionKey],
   );
 
@@ -249,8 +284,14 @@ export default function EmotionVisit({ emotion, onClose }) {
                 "--bubble-glow": bubbleGlow,
               }}
             >
-              <div className="visit-bubble-aura" />
-              <div className="visit-bubble-core" />
+              <div
+                className="visit-bubble-aura"
+                style={{ animationDuration: `${auraDur}s` }}
+              />
+              <div
+                className="visit-bubble-core"
+                style={{ animationDuration: `${coreDur}s` }}
+              />
               <div className="visit-particles">
                 {particles.map((p, i) => (
                   <span
