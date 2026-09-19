@@ -205,17 +205,22 @@ function coordMotion(x, y) {
   const energy = y / 7; // -1..1
   const speed = 1 + energy * 0.6;   // y=+7: 1.6x, y=-7: 0.4x
   const amp = 1 - energy * 0.18;    // y=+7: 0.82, y=-7: 1.18
-  // Heartbeat interval in seconds — 0.5s at y=+7 (~120bpm), 1.0s at y=0
-  // (~60bpm), 1.5s at y=-7 (~40bpm resting). Always runs, so even low-
-  // energy emotions have a slow, calm pulse underneath.
-  const heartDur = 1.0 - energy * 0.5;
-  return { speed, amp, heartDur };
+  // Bubble-ring pulse: for high-energy emotions this reads as a fast
+  // heartbeat (punchy peak); for low-energy emotions we switch to a slow,
+  // gradual breath-like expansion/contraction. Duration scales with the
+  // magnitude of energy so extremes are more pronounced.
+  const isHighEnergy = y > 0;
+  const heartAnim = isHighEnergy ? "visit-heartbeat" : "visit-breath";
+  const heartDur = isHighEnergy
+    ? 1.0 - energy * 0.5              // y=+7 → 0.5s (~120bpm), y=+1 → 0.93s (~65bpm)
+    : 4 + (Math.abs(y) / 7) * 4;      // y=-1 → 4.6s, y=-7 → 8s (very slow breath)
+  return { speed, amp, heartAnim, heartDur };
 }
 
 export default function EmotionVisit({ emotion, onClose }) {
   const dialogRef = useRef(null);
   const motionKey = emotion.motion || "still";
-  const { speed, amp, heartDur } = coordMotion(emotion.x, emotion.y);
+  const { speed, amp, heartAnim, heartDur } = coordMotion(emotion.x, emotion.y);
   const baseTiming = PRESET_TIMING[motionKey] || PRESET_TIMING.still;
   const coreDur = baseTiming.core / speed;
   const auraDur = baseTiming.aura / speed;
@@ -295,7 +300,10 @@ export default function EmotionVisit({ emotion, onClose }) {
               <div
                 className="visit-bubble-heart"
                 aria-hidden="true"
-                style={{ animationDuration: `${heartDur}s` }}
+                style={{
+                  animationName: heartAnim,
+                  animationDuration: `${heartDur}s`,
+                }}
               />
               <div
                 className="visit-bubble-core"
