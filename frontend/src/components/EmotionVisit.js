@@ -167,9 +167,12 @@ const MOTION_PROFILES = {
 function buildParticles(motionKey, amp, speed) {
   const profile = MOTION_PROFILES[motionKey] || MOTION_PROFILES.still;
   const count = randInt(profile.count[0], profile.count[1]);
-  return Array.from({ length: count }, () => {
+  return Array.from({ length: count }, (_, i) => {
     const { sx, sy, ex, ey } = profile.pick();
     return {
+      // Stable id assigned at generation time so React can key each
+      // particle without relying on its array index.
+      id: `${motionKey}-${i}-${Math.random().toString(36).slice(2, 9)}`,
       size: rand(profile.size[0], profile.size[1]),
       // Faster overall at high energy, slower at low energy.
       dur: rand(profile.dur[0], profile.dur[1]) / speed,
@@ -310,9 +313,9 @@ export default function EmotionVisit({ emotion, onClose }) {
                 style={{ animationDuration: `${coreDur}s` }}
               />
               <div className="visit-particles">
-                {particles.map((p, i) => (
+                {particles.map((p) => (
                   <span
-                    key={i}
+                    key={p.id}
                     className="visit-particle"
                     style={{
                       "--size": `${p.size}px`,

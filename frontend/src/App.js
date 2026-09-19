@@ -9,6 +9,11 @@ import { HelpCircle } from "lucide-react";
 
 const THEME_KEY = "emotions-theme";
 
+// Note on localStorage usage: we only persist the user's chosen theme name
+// (a short, non-sensitive string like "cosmic"). No auth tokens, session
+// data, or personal info is ever written to storage — the app is fully
+// static and has no accounts.
+
 export default function App() {
   const [theme, setTheme] = useState(() => {
     if (typeof window === "undefined") return "cosmic";

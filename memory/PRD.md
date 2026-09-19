@@ -74,9 +74,18 @@ optional `motion` field; omitted when set to `still`.
 - Q4 (pleasant / low energy): deep teal → pure green on -1 row, deep teal → emerald jewel tones on -7 row
 
 ## Backlog (P1/P2)
-- P1: Expand curated set to all 256 coordinates
-- P1: Search box to jump to an emotion by name
+- P1: Expand curated set to all 196 coordinates
+- P1: Journey Trail — soft line connecting the last few emotions someone explored
+- P1: Name Search — type an emotion name and fly directly to that coordinate
 - P2: Share-a-feeling link (encode current selection in URL)
 - P2: Journaling / "I felt this today" logbook
-- P2: Emotion connections / suggested nearby emotions
 - P2: Ambient soundscape tied to quadrant
+
+## Code hygiene (Feb 19 2026)
+- Applied safe code-review fixes: EmotionVisit particles now carry stable ids
+  (used as React key instead of array index); App.js localStorage usage is now
+  documented (only the theme name is stored — non-sensitive).
+- Deliberately kept the d3-force / PanZoom hook dependency arrays as-is per
+  the prior stabilisation work; the two empty catches in PanZoom around
+  `setPointerCapture` / `releasePointerCapture` are documented in-file
+  (silence is intentional to avoid console spam on every quick tap).
