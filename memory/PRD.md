@@ -15,12 +15,12 @@ An interactive emotions chart where you can explore the meanings and experiences
 - Therapist / educator introducing affect models
 
 ## Architecture (Feb 2026 — static)
-- **Frontend** (React 19): the entire app. d3-force physics grid, framer-motion HUD, theme toggle, client-side admin editor.
+- **Frontend** (React 19): the entire app. d3-force physics grid, framer-motion HUD, theme toggle.
 - **Data**: `frontend/src/data/emotions.json` — bundled at build time. Source of truth for all emotion names, descriptions, and per-cell colour overrides.
 - **Backend / MongoDB / LLM**: no longer required for the deployed site. The `backend/` folder from the earlier server-backed version is kept in the repo but is not part of the static deploy.
 
 ## Deploy target: Netlify (static)
-- `netlify.toml` at repo root; `frontend/public/_redirects` provides SPA fallback so `/admin` resolves to `index.html`.
+- `netlify.toml` at repo root; `frontend/public/_redirects` provides SPA fallback so any client route resolves to `index.html`.
 - Publish flow: `yarn build` inside `frontend/`, then drag `frontend/build/` onto Netlify.
 - Editor flow: run locally, edit cells, click **Download emotions.json**, drop the file into `frontend/src/data/`, rebuild, redeploy.
 
@@ -28,7 +28,7 @@ An interactive emotions chart where you can explore the meanings and experiences
 Each entry is keyed `"x,y"` and holds:
 - `name` (string, required)
 - `description` (string, required — the short line shown in the HUD)
-- `color` (optional hex like `#a1b2c3`, admin override)
+- `color` (optional hex like `#a1b2c3`, override for the computed gradient)
 - `physical`, `events`, `thoughts`, `urges` (optional strings) — the four expanded sections shown in the Visit overlay. If none are filled, the overlay shows a soft "More detail is still being written" line.
 
 ## Visit overlay
@@ -40,7 +40,7 @@ Each entry is keyed `"x,y"` and holds:
 ## Visit motion presets
 The featured bubble in the Visit overlay can be given a `motion` preset that
 animates its core, aura, and 8 orbiting particles. All animations are pure
-CSS keyframes (no per-frame JS). Presets available in the admin editor:
+CSS keyframes (no per-frame JS). Presets available for the `motion` field:
 - `still` — gentle default
 - `panic` — prickly jitter + rapid particle spikes
 - `heavy` — slow bob + particles drifting downward
@@ -60,8 +60,7 @@ optional `motion` field; omitted when set to `still`.
 - Ethereal (light pearlescent) and Cosmic (dark starfield) themes with smooth transition
 - Custom pan/zoom canvas wrapping the grid
 - Persistent HUD (EmotionDetailPanel) showing selected emotion
-- `/admin` editor with passphrase auth gate (`fH4KGbiw!`) for inline editing of titles, descriptions, and per-cell custom colors
-- Backend: `GET /api/emotions`, `PUT /api/emotions/{x}/{y}` (admin), `POST /api/admin/verify`
+- Editing model: edit `frontend/src/data/emotions.json` directly and rebuild — no admin UI ships with the deployed site.
 - Nearby Suggestions: selecting a bubble softly glows its 8 immediate neighbours (axis-aware — jumps across the skipped x=0 / y=0 axis so cross-quadrant neighbours light up too) and gently dims the rest of the atlas
 - Click outside the grid clears the current selection and restores the atlas
 - Bubble labels: emotion name shown inside each labelled bubble; visible only when zoomed to ≥ 80% (PanZoom toggles `.zoom-labels-visible`); TODO placeholders remain unlabeled
