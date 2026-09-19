@@ -1,1 +1,1226 @@
+@import url("https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: "Spectral", ui-serif, Georgia, serif;
+  --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ============ THEME TOKENS ============ */
+body[data-theme="ethereal"] {
+  --bg-base: hsl(210, 30%, 97%);
+  --bg-tint: hsl(200, 45%, 92%);
+  --fg: hsl(220, 40%, 10%);
+  --fg-muted: hsl(220, 15%, 40%);
+  --surface: rgba(255, 255, 255, 0.62);
+  --surface-border: rgba(255, 255, 255, 0.85);
+  --axis: rgba(30, 40, 70, 0.16);
+  --axis-label: hsl(220, 30%, 25%);
+  --grain-opacity: 0.1;
+}
+
+body[data-theme="cosmic"] {
+  --bg-base: hsl(240, 40%, 4%);
+  --bg-tint: hsl(250, 45%, 8%);
+  --fg: hsl(210, 40%, 96%);
+  --fg-muted: hsl(220, 15%, 68%);
+  --surface: rgba(14, 16, 30, 0.55);
+  --surface-border: rgba(255, 255, 255, 0.09);
+  --axis: rgba(200, 210, 255, 0.14);
+  --axis-label: hsl(220, 30%, 82%);
+  --grain-opacity: 0.09;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--fg);
+  transition:
+    background-color 500ms ease,
+    color 500ms ease;
+}
+
+/* ============ AMBIENT BACKGROUND ============ */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+body[data-theme="ethereal"] .ambient-bg::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 210, 220, 0.45),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(200, 230, 255, 0.55),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 75% 90%,
+      rgba(220, 255, 230, 0.4),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 10% 85%,
+      rgba(255, 240, 200, 0.35),
+      transparent 40%
+    );
+  filter: blur(60px);
+  animation: ambient-drift 32s ease-in-out infinite alternate;
+}
+
+body[data-theme="cosmic"] .ambient-bg::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(80, 60, 180, 0.35),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(40, 90, 200, 0.35),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 75% 90%,
+      rgba(140, 40, 140, 0.28),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 10% 85%,
+      rgba(20, 40, 100, 0.4),
+      transparent 45%
+    );
+  filter: blur(70px);
+  animation: ambient-drift 40s ease-in-out infinite alternate;
+}
+
+.ambient-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(-3%, 2%, 0) scale(1.06);
+  }
+}
+
+/* Cosmic starfield */
+body[data-theme="cosmic"] .ambient-bg .stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #fff 100%, transparent),
+    radial-gradient(1px 1px at 38% 71%, #fff 100%, transparent),
+    radial-gradient(
+      1.5px 1.5px at 62% 33%,
+      rgba(255, 255, 255, 0.9) 100%,
+      transparent
+    ),
+    radial-gradient(1px 1px at 82% 14%, #fff 100%, transparent),
+    radial-gradient(
+      1px 1px at 91% 62%,
+      rgba(255, 255, 255, 0.8) 100%,
+      transparent
+    ),
+    radial-gradient(1px 1px at 27% 88%, #fff 100%, transparent),
+    radial-gradient(
+      1.5px 1.5px at 55% 8%,
+      rgba(255, 255, 255, 0.7) 100%,
+      transparent
+    ),
+    radial-gradient(1px 1px at 72% 78%, #fff 100%, transparent),
+    radial-gradient(1px 1px at 5% 55%, #fff 100%, transparent),
+    radial-gradient(
+      1px 1px at 44% 45%,
+      rgba(255, 255, 255, 0.6) 100%,
+      transparent
+    );
+  opacity: 0.7;
+  animation: twinkle 6s ease-in-out infinite alternate;
+}
+
+body[data-theme="ethereal"] .ambient-bg .stars {
+  /* Aged-paper vibe: soft sepia vignette at the edges. Static — no cost. */
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at center, transparent 58%, rgba(170, 130, 80, 0.16) 100%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+/* ============ GLASSMORPHIC PANEL ============ */
+.glass-panel {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 22px;
+  box-shadow:
+    0 30px 60px -30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* ============ PAN / ZOOM ============ */
+.pz-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  z-index: 5;
+}
+.pz-viewport.panning {
+  cursor: grabbing;
+}
+.pz-surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.pz-controls {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-radius: 999px;
+}
+.pz-controls button {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+.pz-controls button:hover {
+  background: var(--surface-border);
+}
+.pz-scale {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  padding: 1px 0;
+  min-width: 26px;
+  text-align: center;
+  user-select: none;
+}
+.pz-divider {
+  width: 16px;
+  height: 1px;
+  background: var(--surface-border);
+  margin: 3px 0;
+}
+
+/* ============ AXES ============ */
+.axis-line {
+  position: absolute;
+  background: var(--axis);
+  pointer-events: none;
+}
+.axis-line-x {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.axis-line-y {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.axis-label {
+  position: absolute;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg);
+  opacity: 0.85;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 30;
+}
+
+/* ============ EMOTION BUBBLE ============ */
+.bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  /* transition only visual props — never transform (physics writes it every frame). */
+  transition:
+    opacity 320ms ease,
+    filter 320ms ease;
+}
+
+.bubble-scale {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transform: scale(1);
+  will-change: transform;
+}
+/* No `.is-selected .bubble-scale` rule — JS drives the scale via inline
+   style each frame, and sets the final scale before releasing control. */
+
+.bubble-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--bubble-color);
+  box-shadow: 0 2px 10px -2px var(--bubble-glow);
+  transition: box-shadow 300ms ease;
+}
+
+.bubble-aura {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--bubble-glow) 0%,
+    transparent 65%
+  );
+  filter: blur(10px);
+  opacity: 0.45;
+  animation: aura-pulse var(--aura-duration, 7s) ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* ============ BUBBLE LABEL ============ */
+/* Emotion name shown inside the bubble; fades in only when the atlas is
+   zoomed in enough to make the text legible (PanZoom toggles the
+   .zoom-labels-visible class on .pz-viewport). */
+.bubble-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  text-align: center;
+  color: rgba(15, 20, 35, 0.9);
+  mix-blend-mode: multiply;
+  text-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 3;
+}
+.pz-viewport.zoom-labels-visible .bubble-label {
+  opacity: 1;
+}
+
+body[data-theme="cosmic"] .bubble-core {
+  box-shadow: 0 0 14px var(--bubble-glow);
+}
+body[data-theme="cosmic"] .bubble-aura {
+  opacity: 0.6;
+  filter: blur(14px);
+}
+
+.bubble.is-selected {
+  z-index: 25;
+  filter: brightness(1.1) saturate(1.15);
+}
+.bubble.is-selected .bubble-core {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  box-shadow: 0 8px 30px -4px var(--bubble-glow);
+}
+.bubble.is-selected .bubble-aura {
+  opacity: 0.85;
+}
+
+/* ============ NEIGHBOUR HIGHLIGHT ============ */
+/* When a bubble is selected, its 8 immediate neighbours softly glow so
+   viewers see nearby feelings. Everything else fades a touch. */
+.bubble .bubble-core,
+.bubble .bubble-aura {
+  transition:
+    box-shadow 320ms ease,
+    opacity 320ms ease,
+    filter 320ms ease;
+}
+.bubble.is-neighbor {
+  z-index: 15;
+}
+.bubble.is-neighbor .bubble-core {
+  box-shadow:
+    0 0 0 2px var(--bubble-glow),
+    0 4px 20px -2px var(--bubble-glow);
+  filter: brightness(1.06);
+}
+.bubble.is-neighbor .bubble-aura {
+  opacity: 0.75;
+  filter: blur(14px);
+}
+body[data-theme="cosmic"] .bubble.is-neighbor .bubble-core {
+  box-shadow:
+    0 0 0 2px var(--bubble-glow),
+    0 0 22px var(--bubble-glow);
+}
+.bubble.is-dimmed {
+  opacity: 0.82;
+}
+.bubble.is-dimmed .bubble-aura {
+  opacity: 0.32;
+}
+
+@keyframes aura-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-aura,
+  .ambient-bg::before {
+    animation: none !important;
+  }
+}
+
+/* ============ HEADER ============ */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px;
+  pointer-events: none;
+}
+.app-header > * {
+  pointer-events: auto;
+}
+
+.brand h1 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.brand p {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 2px 0 0 0;
+}
+
+/* Theme toggle pill */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+}
+.theme-toggle button {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  color: var(--fg-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+.theme-toggle button.active {
+  background: var(--fg);
+  color: var(--bg-base);
+}
+
+/* ============ DETAIL PANEL (persistent HUD) ============ */
+.detail-panel {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  width: min(420px, calc(100vw - 64px));
+  padding: 28px 30px 26px;
+  z-index: 35;
+  transition: opacity 240ms ease;
+}
+.detail-panel.is-empty {
+  opacity: 0.72;
+}
+.detail-empty .detail-empty-title {
+  opacity: 0.55;
+  font-style: italic;
+  font-weight: 400;
+}
+.detail-empty .detail-empty-hint {
+  opacity: 0.7;
+}
+
+.detail-coord {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.detail-name {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 2.4rem;
+  line-height: 1.05;
+  margin: 8px 0 12px 0;
+  letter-spacing: -0.015em;
+}
+
+.detail-desc {
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--fg);
+  opacity: 0.88;
+}
+
+.detail-source {
+  margin-top: 16px;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  opacity: 0.75;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-credit {
+  margin: 18px 0 0 0;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  opacity: 0.55;
+  text-align: right;
+}
+
+.detail-visit-btn {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 9px 18px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg-base);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border: 1px solid var(--fg);
+  transition: opacity 180ms ease, transform 220ms cubic-bezier(0.34, 1.35, 0.5, 1);
+}
+.detail-visit-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+.detail-visit-btn:active {
+  transform: translateY(0);
+}
+
+/* ============ VISIT OVERLAY (pokedex-style detail modal) ============ */
+.visit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: rgba(6, 8, 20, 0.62);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+body[data-theme="ethereal"] .visit-overlay {
+  background: rgba(220, 210, 200, 0.55);
+}
+
+.visit-card {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 64px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 26px;
+  padding: 0;
+}
+.visit-card:focus {
+  outline: none;
+}
+
+.visit-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.visit-close:hover {
+  background: var(--surface-border);
+  transform: rotate(90deg);
+}
+
+/* Featured bubble at the top of the card. Same visual language as an atlas
+   bubble but scaled up so it reads as a portrait. */
+.visit-featured {
+  position: relative;
+  padding: 78px 20px 34px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.visit-bubble {
+  position: relative;
+  width: 148px;
+  height: 148px;
+}
+.visit-bubble-aura {
+  position: absolute;
+  inset: -35%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--bubble-glow) 0%, transparent 65%);
+  filter: blur(24px);
+  opacity: 0.85;
+  animation: aura-pulse 7s ease-in-out infinite alternate;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.visit-bubble-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--bubble-color);
+  box-shadow:
+    0 12px 44px -8px var(--bubble-glow),
+    0 0 24px var(--bubble-glow);
+  will-change: transform, opacity, box-shadow;
+}
+
+/* Bubble-ring pulse layer. Sits behind the core and expands outward.
+   Which animation runs is chosen inline based on the emotion's energy
+   level: `visit-heartbeat` for high-energy (a fast, punchy pulse mimicking
+   an elevated heart rate) or `visit-breath` for low-energy (a slow,
+   gradual expansion/contraction like a long calming breath). */
+.visit-bubble-heart {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--bubble-glow);
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+.visit-bubble-core {
+  z-index: 1;
+}
+@keyframes visit-heartbeat {
+  0%   { opacity: 0;    transform: scale(0.92); }
+  22%  { opacity: 0.55; transform: scale(1.02); }
+  40%  { opacity: 0.4;  transform: scale(1.1); }
+  100% { opacity: 0;    transform: scale(1.35); }
+}
+@keyframes visit-breath {
+  0%, 100% { opacity: 0.15; transform: scale(0.94); }
+  50%      { opacity: 0.5;  transform: scale(1.18); }
+}
+
+/* ============ VISIT PARTICLES ============ */
+/* Particles are now generated in JS with per-preset counts (3-8), sizes,
+   durations, delays, and start/end offsets (--sx,--sy → --ex,--ey px from
+   the bubble centre). Each motion animation interpolates between those
+   variables so no two particles follow the same path. */
+.visit-particles {
+  position: absolute;
+  inset: -60%;
+  pointer-events: none;
+}
+.visit-particle {
+  --size: 8px;
+  --sx: 0px;
+  --sy: 0px;
+  --ex: 0px;
+  --ey: 0px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  background: var(--bubble-color);
+  box-shadow:
+    0 0 8px var(--bubble-glow),
+    0 0 16px var(--bubble-glow);
+  opacity: 0;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* ---- STILL (default) ---- gentle breath and slow drifting orbs. */
+.motion-still .visit-bubble-core {
+  animation: motion-still-breath 6s ease-in-out infinite;
+}
+.motion-still .visit-particle {
+  animation-name: p-drift;
+  animation-timing-function: ease-in-out;
+}
+@keyframes motion-still-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.035); }
+}
+@keyframes p-drift {
+  0%, 100% { opacity: 0.15; transform: translate(var(--sx), var(--sy)); }
+  50%      { opacity: 0.7;  transform: translate(var(--ex), var(--ey)); }
+}
+
+/* ---- PANIC ---- prickly, vibrating; particles spike outward erratically. */
+.motion-panic .visit-bubble-core {
+  animation: motion-panic-jitter 0.16s linear infinite;
+}
+.motion-panic .visit-bubble-aura {
+  animation: motion-panic-prickle 0.7s ease-in-out infinite;
+  filter: blur(14px);
+}
+.motion-panic .visit-particle {
+  animation-name: p-dart;
+  animation-timing-function: ease-out;
+}
+@keyframes motion-panic-jitter {
+  0%   { transform: translate(0, 0); }
+  15%  { transform: translate(-5px, 4px); }
+  32%  { transform: translate(6px, -3px); }
+  50%  { transform: translate(-4px, -5px); }
+  68%  { transform: translate(5px, 4px); }
+  85%  { transform: translate(-3px, 5px); }
+  100% { transform: translate(4px, -2px); }
+}
+@keyframes motion-panic-prickle {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  30%      { opacity: 1;    transform: scale(1.14); }
+  55%      { opacity: 0.3;  transform: scale(0.9); }
+  75%      { opacity: 0.95; transform: scale(1.08); }
+}
+@keyframes p-dart {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.3); }
+  30%  { opacity: 1; transform: translate(calc(var(--sx) * 0.4 + var(--ex) * 0.6), calc(var(--sy) * 0.4 + var(--ey) * 0.6)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0.5); }
+}
+
+/* ---- HEAVY ---- slow bob; particles drift downward like weight. */
+.motion-heavy .visit-bubble-core {
+  animation: motion-heavy-bob 4.5s ease-in-out infinite;
+}
+.motion-heavy .visit-bubble-aura {
+  animation: motion-heavy-aura 4.5s ease-in-out infinite;
+}
+.motion-heavy .visit-particle {
+  animation-name: p-fall;
+  animation-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+@keyframes motion-heavy-bob {
+  0%, 100% { transform: translateY(-4px); }
+  50%      { transform: translateY(14px); }
+}
+@keyframes motion-heavy-aura {
+  0%, 100% { opacity: 0.55; filter: blur(28px); }
+  50%      { opacity: 0.85; filter: blur(34px); }
+}
+@keyframes p-fall {
+  0%   { opacity: 0;   transform: translate(var(--sx), var(--sy)); }
+  20%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: translate(var(--ex), var(--ey)); }
+}
+
+/* ---- PULSE ---- rhythmic upbeat; core snaps, particles ping outward. */
+.motion-pulse .visit-bubble-core {
+  animation: motion-pulse-beat 0.75s cubic-bezier(0.3, 1.4, 0.5, 1) infinite;
+}
+.motion-pulse .visit-bubble-aura {
+  animation: motion-pulse-aura 0.75s ease-out infinite;
+}
+.motion-pulse .visit-particle {
+  animation-name: p-ping;
+  animation-timing-function: ease-out;
+}
+@keyframes motion-pulse-beat {
+  0%, 100% { transform: scale(1); }
+  20%      { transform: scale(1.14); }
+  45%      { transform: scale(0.94); }
+  65%      { transform: scale(1.06); }
+}
+@keyframes motion-pulse-aura {
+  0%   { opacity: 0.5;  transform: scale(0.92); }
+  30%  { opacity: 1;    transform: scale(1.22); }
+  100% { opacity: 0.5;  transform: scale(0.92); }
+}
+@keyframes p-ping {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.2); }
+  25%  { opacity: 1; transform: translate(calc(var(--sx) * 0.3 + var(--ex) * 0.7), calc(var(--sy) * 0.3 + var(--ey) * 0.7)) scale(1.1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0.6); }
+}
+
+/* ---- BREATHE ---- slow inhale/exhale mimicking regulated breathing. */
+.motion-breathe .visit-bubble-core {
+  animation: motion-breathe-core 6.5s ease-in-out infinite;
+}
+.motion-breathe .visit-bubble-aura {
+  animation: motion-breathe-aura 6.5s ease-in-out infinite;
+}
+.motion-breathe .visit-particle {
+  animation-name: p-breathe;
+  animation-timing-function: ease-in-out;
+}
+@keyframes motion-breathe-core {
+  0%, 100% { transform: scale(0.92); }
+  50%      { transform: scale(1.09); }
+}
+@keyframes motion-breathe-aura {
+  0%, 100% { opacity: 0.35; filter: blur(20px); }
+  50%      { opacity: 1;    filter: blur(32px); }
+}
+@keyframes p-breathe {
+  0%, 100% { opacity: 0.25; transform: translate(var(--sx), var(--sy)) scale(0.85); }
+  50%      { opacity: 0.9;  transform: translate(var(--ex), var(--ey)) scale(1.1); }
+}
+
+/* ---- RADIATE ---- calm core; particles rise upward like inspiration. */
+.motion-radiate .visit-bubble-core {
+  animation: motion-radiate-glow 3s ease-in-out infinite;
+}
+.motion-radiate .visit-bubble-aura {
+  animation: motion-radiate-aura 3s ease-in-out infinite;
+}
+.motion-radiate .visit-particle {
+  animation-name: p-rise;
+  animation-timing-function: ease-out;
+}
+@keyframes motion-radiate-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 12px 44px -8px var(--bubble-glow), 0 0 20px var(--bubble-glow);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 12px 66px -6px var(--bubble-glow), 0 0 44px var(--bubble-glow);
+  }
+}
+@keyframes motion-radiate-aura {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.2); }
+}
+@keyframes p-rise {
+  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.4); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(1.05); }
+}
+
+/* ---- FLICKER ---- unstable candle-like anxiety. */
+.motion-flicker .visit-bubble-core {
+  animation: motion-flicker-core 0.5s ease-in-out infinite;
+}
+.motion-flicker .visit-bubble-aura {
+  animation: motion-flicker-aura 0.35s ease-in-out infinite;
+}
+.motion-flicker .visit-particle {
+  animation-name: p-spark;
+  animation-timing-function: ease-out;
+}
+@keyframes motion-flicker-core {
+  0%   { opacity: 1;    transform: translate(0, 0) scale(1); }
+  22%  { opacity: 0.55; transform: translate(-3px, 2px) scale(0.94); }
+  44%  { opacity: 1;    transform: translate(3px, -2px) scale(1.05); }
+  66%  { opacity: 0.7;  transform: translate(1px, 3px) scale(0.98); }
+  88%  { opacity: 0.95; transform: translate(-2px, -1px) scale(1.02); }
+  100% { opacity: 1;    transform: translate(0, 0) scale(1); }
+}
+@keyframes motion-flicker-aura {
+  0%, 100% { opacity: 0.4; }
+  35%      { opacity: 1; }
+  60%      { opacity: 0.25; }
+}
+@keyframes p-spark {
+  0%   { opacity: 0;    transform: translate(var(--sx), var(--sy)) scale(0.3); }
+  30%  { opacity: 0.95; transform: translate(calc(var(--sx) * 0.5 + var(--ex) * 0.5), calc(var(--sy) * 0.5 + var(--ey) * 0.5)) scale(1); }
+  60%  { opacity: 0.3; }
+  100% { opacity: 0;    transform: translate(var(--ex), var(--ey)) scale(0.7); }
+}
+
+/* ---- SINK ---- slow downward drift; particles trail below like tears. */
+.motion-sink .visit-bubble-core {
+  animation: motion-sink-drift 5s ease-in-out infinite;
+}
+.motion-sink .visit-bubble-aura {
+  animation: motion-sink-aura 5s ease-in-out infinite;
+  filter: blur(28px);
+}
+.motion-sink .visit-particle {
+  animation-name: p-tear;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.66, 0.16);
+}
+@keyframes motion-sink-drift {
+  0%   { transform: translateY(-6px); }
+  50%  { transform: translateY(12px); }
+  100% { transform: translateY(-6px); }
+}
+@keyframes motion-sink-aura {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.8; }
+}
+@keyframes p-tear {
+  0%   { opacity: 0;   transform: translate(var(--sx), var(--sy)) scale(0.6); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: translate(var(--ex), var(--ey)) scale(0.95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Only disable the rapid / jarring motions — leave the gentle ones
+     (still-breath, breathe, heavy, sink, radiate) alone so each emotion
+     still has a distinct texture even when reduced motion is requested. */
+  .motion-panic .visit-bubble-core,
+  .motion-panic .visit-bubble-aura,
+  .motion-panic .visit-particle,
+  .motion-pulse .visit-bubble-core,
+  .motion-pulse .visit-particle,
+  .motion-flicker .visit-bubble-core,
+  .motion-flicker .visit-bubble-aura,
+  .motion-flicker .visit-particle {
+    animation: none !important;
+  }
+  .motion-panic .visit-particle,
+  .motion-flicker .visit-particle { opacity: 0.55; }
+}
+
+.visit-body {
+  padding: 4px 34px 32px 34px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.visit-body::-webkit-scrollbar {
+  width: 8px;
+}
+.visit-body::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 8px;
+}
+
+.visit-coord {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  opacity: 0.7;
+  text-align: center;
+  margin: 0 0 6px 0;
+}
+.visit-name {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 2.6rem;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-align: center;
+  margin: 0 0 14px 0;
+}
+.visit-desc {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  text-align: center;
+  color: var(--fg);
+  opacity: 0.88;
+  margin: 0 0 28px 0;
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.visit-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--surface-border);
+}
+.visit-section-title {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+.visit-section-body {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--fg);
+  margin: 0;
+  opacity: 0.94;
+}
+
+.visit-empty {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  padding: 22px 0 4px 0;
+  border-top: 1px solid var(--surface-border);
+  margin-top: 8px;
+}
+
+@media (max-width: 560px) {
+  .visit-name {
+    font-size: 2rem;
+  }
+  .visit-body {
+    padding: 4px 20px 24px 20px;
+  }
+  .visit-featured {
+    padding-top: 34px;
+  }
+  .visit-bubble {
+    width: 118px;
+    height: 118px;
+  }
+}
+
+.brand-credit {
+  margin-top: 4px !important;
+  font-size: 0.5rem !important;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.detail-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--surface-border);
+  color: var(--fg-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+.detail-close:hover {
+  color: var(--fg);
+  background: var(--surface-border);
+}
+
+/* Legend (collapsible — icon-only when closed) */
+.legend {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 30;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  color: var(--fg-muted);
+  overflow: hidden;
+  transition:
+    max-height 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    padding 260ms ease,
+    border-radius 260ms ease;
+}
+.legend.is-open {
+  padding: 6px 8px 14px;
+  max-width: 250px;
+  max-height: 260px;
+  border-radius: 18px;
+}
+.legend.is-closed {
+  padding: 0;
+  max-width: 32px;
+  max-height: 32px;
+  border-radius: 999px;
+}
+.legend-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color 200ms ease;
+}
+.legend-header:hover {
+  background: var(--surface-border);
+}
+.legend-body {
+  padding: 4px 12px 4px;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+.legend-body p {
+  margin: 6px 0 0 0;
+}
+.legend-body strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--fg-muted);
+  border-top-color: transparent;
+  animation: spin 800ms linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Selection color */
+::selection {
+  background: var(--fg);
+  color: var(--bg-base);
+}
 
